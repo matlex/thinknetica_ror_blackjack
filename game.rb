@@ -5,7 +5,7 @@ require_relative 'deck'
 require_relative 'player'
 require_relative 'bank'
 
-class TheGame
+class Game
   MAX_ALLOWED_CARDS = 3
   MAX_SCORE = 21
 
@@ -17,9 +17,32 @@ class TheGame
     @game_ended = false
   end
 
-  def start
-    ask_user_name
-    ask_action
+  def ask_user_name
+    while @player.name.to_s.empty? do
+      print 'Введите ваше имя: '
+      @player.name = gets.chomp
+    end
+    puts
+  end
+
+  def ask_action
+    loop do
+      show_possible_actions
+      begin
+        choice = gets.chomp
+        case choice
+          when '0'  then show_possible_actions
+          when '1'  then deal_cards
+          when '2'  then hit
+          when '3'  then stand
+          else
+            puts 'Вы вышли из программы.'
+            break
+        end
+      rescue => e
+        puts "::ERROR:: #{e.message}"
+      end
+    end
   end
 
   private
@@ -158,26 +181,6 @@ class TheGame
     puts "#{text}\n\n"
   end
 
-  def ask_action
-    loop do
-      show_possible_actions
-      begin
-        choice = gets.chomp
-        case choice
-          when '0'  then show_possible_actions
-          when '1'  then deal_cards
-          when '2'  then hit
-          when '3'  then stand
-          else
-            puts 'Вы вышли из программы.'
-            break
-        end
-      rescue => e
-        puts "::ERROR:: #{e.message}"
-      end
-    end
-  end
-
   def show_possible_actions
     puts 'Выберите действие из списка ниже:'
     puts '1 - чтобы раздать карты (Игрок проиграет, если игра активна)'
@@ -201,14 +204,6 @@ class TheGame
   def show_players_cards_and_values
     puts "#{@player.name} #{@player}(#{@player.get_cards_value})"
     puts "Дилер имеет карты: #{@dealer.show_cards_as_hidden}(#{@dealer.get_cards_value})"
-    puts
-  end
-
-  def ask_user_name
-    while @player.name.to_s.empty? do
-      print 'Введите ваше имя: '
-      @player.name = gets.chomp
-    end
     puts
   end
 
@@ -251,7 +246,3 @@ class TheGame
   end
 
 end
-
-game = TheGame.new
-
-game.start
